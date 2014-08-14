@@ -1,7 +1,7 @@
+--Myrial PageRank implementation
 Edges = scan(TwitterK2);
 Edges = select follower as src, followee as dst from Edges;
 
---Myrial PageRank implementation
 --Table of all vertices
 Pages = distinct((select src as v
          from Edges)
