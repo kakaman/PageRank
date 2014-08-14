@@ -34,7 +34,8 @@ UniformRank = select tau/N as rank from NumVertices;
 do
 --Schema: IncomingRank (v:int, rank:float) : multiplies the pagerank sum of incoming vertices w/ .85
     IncomingRank = select a.v, alpha*sum(b.rank/c.out) as rank
-                   from Pages a, PageRank b, OutDegree c, Edges d where a.v = d.dst and d.src = b.v and c.v = b.v;
+                   from Pages a, PageRank b, OutDegree c, Edges d 
+                   where a.v = d.dst and d.src = b.v and c.v = b.v;
 --Schema: SinkRank (rank:float) : Sums all SinkRanks, divided evenly among all vertices
     SinkRank = select sum(PageRank.rank) as rank from PageRank, Sinks where PageRank.v = Sinks.v;
 --Schema: Pagerank(v:int, rank:float) : Unions the PageRank with the SrcRank eliminating duplicates
@@ -44,7 +45,9 @@ do
               (select p.v as v, u.rank + alpha*s.rank/NumVertices.N as rank
               from UniformRank u, Src p, SinkRank s, NumVertices);
 --NotConverged(v:int, delta:int) : Computes the difference of the new Pagerank to old Pagerank
-    NotConverged = select count(*)!=0 from PageRank, OldPageRank where PageRank.v = OldPageRank.v and abs(PageRank.rank - OldPageRank.rank) >= delta;
+    NotConverged = select count(*)!=0 
+                   from PageRank, OldPageRank
+                   where PageRank.v = OldPageRank.v and abs(PageRank.rank - OldPageRank.rank) >= delta;
 --OldPageRank ( v:int, rank:float): sets the old to current pagerank for next iteration
     OldPageRank = PageRank;
 while NotConverged;
